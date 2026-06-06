@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Edit Product{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>✏️ Edit Product Node</h1>
+    <p>Modify production parameters and inventory records for item UUID: <code>{{ product.id }}</code></p>
+  </div>
+</div>
+
+<div class="container page-content" style="padding-top:0">
+  <div class="checkout-layout" style="grid-template-columns: 1fr;">
+    <div class="checkout-card">
+      <form method="POST" action="{{ url_for('seller_edit_product', pid=product.id) }}">
+        
+        <div class="form-group">
+          <label class="form-label">Product Title Target Name *</label>
+          <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Marketplace Category Selector (Locked)</label>
+            <input type="text" class="form-control" value="{{ product.category }}" readonly style="opacity:0.6; cursor:not-allowed;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Manufacturing Brand Identifier *</label>
+            <input type="text" name="brand" class="form-control" value="{{ product.brand }}" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Selling Offer Price (₹) *</label>
+            <input type="number" name="price" class="form-control" value="{{ product.price | int }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Original Asset MRP Price (₹) *</label>
+            <input type="number" name="original_price" class="form-control" value="{{ product.original_price | int }}" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Warehouse Live Stock Units *</label>
+            <input type="number" name="stock" class="form-control" value="{{ p_stock or product.stock }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Media Asset Object URL *</label>
+            <input type="url" name="image" class="form-control" value="{{ product.image }}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Product Detailed Metadata Summary / Description *</label>
+          <textarea name="description" class="form-control" rows="5" required>{{ product.description }}</textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:24px;">
+          <button type="submit" class="btn btn-accent">💾 Save Internal Modifications</button>
+          <a href="{{ url_for('seller_dashboard') }}" class="btn btn-white">Abort Workflow</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

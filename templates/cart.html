@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}My Cart{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>🛒 My Cart</h1>
+    <p>{{ items|length }} item(s) in your cart</p>
+  </div>
+</div>
+<div class="container page-content" style="padding-top:0">
+  {% if items %}
+  <div class="cart-layout">
+    <div>
+      {% for item in items %}
+      <div class="cart-item">
+        <img src="{{ item.image }}" alt="{{ item.name }}" class="cart-img"
+             onerror="this.src='https://via.placeholder.com/90?text=P'">
+        <div class="cart-details">
+          <a href="{{ url_for('product_detail', pid=item.id) }}">
+            <div class="cart-name">{{ item.name }}</div>
+          </a>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">{{ item.category }} · {{ item.brand }}</div>
+          <div class="cart-price">{{ item.price | rupee }}</div>
+          <form method="POST" action="{{ url_for('update_cart') }}">
+            <input type="hidden" name="product_id" value="{{ item.id }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <div class="qty-control">
+                <button type="button" class="qty-btn" data-action="dec">−</button>
+                <input type="number" name="quantity" class="qty-input" value="{{ item.quantity }}" min="1">
+                <button type="button" class="qty-btn" data-action="inc">+</button>
+              </div>
+              <button type="submit" class="btn btn-sm btn-outline">Update</button>
+            </div>
+          </form>
+        </div>
+        <div style="text-align:right;min-width:110px">
+          <div style="font-size:18px;font-weight:700;color:var(--primary);margin-bottom:12px">{{ item.subtotal | rupee }}</div>
+          <form method="POST" action="{{ url_for('remove_from_cart') }}">
+            <input type="hidden" name="product_id" value="{{ item.id }}">
+            <button type="submit" class="btn btn-sm btn-danger">🗑️ Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="order-summary">
+      <div class="summary-title">Price Details</div>
+      <div class="summary-row"><span>Price ({{ items|length }} items)</span><span>{{ total | rupee }}</span></div>
+      <div class="summary-row"><span>Delivery Charges</span>
+        <span style="color:var(--green);font-weight:600">{% if total >= 499 %}FREE{% else %}₹49{% endif %}</span>
+      </div>
+      <div class="summary-row"><span>Platform Discount</span><span style="color:var(--green)">-₹0</span></div>
+      <div class="summary-row total">
+        <span>Total Amount</span>
+        <span>{% if total >= 499 %}{{ total | rupee }}{% else %}{{ (total + 49) | rupee }}{% endif %}</span>
+      </div>
+      {% if total >= 499 %}
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:10px;font-size:12px;color:#166534;margin-bottom:14px;text-align:center">
+        🎉 You're saving on delivery charges!
+      </div>
+      {% else %}
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-sm);padding:10px;font-size:12px;color:#92400e;margin-bottom:14px;text-align:center">
+        Add ₹{{ (499 - total)|int }} more for FREE delivery!
+      </div>
+      {% endif %}
+      <a href="{{ url_for('checkout') }}" class="btn btn-accent w-100 btn-lg">Proceed to Checkout →</a>
+      <a href="{{ url_for('products_page') }}" class="btn btn-outline w-100" style="margin-top:8px">Continue Shopping</a>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🛒</div>
+    <h3>Your cart is empty!</h3>
+    <p>Looks like you haven't added anything yet.</p>
+    <a href="{{ url_for('products_page') }}" class="btn btn-primary">Start Shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

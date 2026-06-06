@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Add Product{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>➕ Add New Product</h1>
+    <p>Deploy a new product catalog node entry onto the live database instance matrix.</p>
+  </div>
+</div>
+
+<div class="container page-content" style="padding-top:0">
+  <div class="checkout-layout" style="grid-template-columns: 1fr;">
+    <div class="checkout-card">
+      <form method="POST" action="{{ url_for('seller_add_product') }}">
+        
+        <div class="form-group">
+          <label class="form-label">Product Name *</label>
+          <input type="text" name="name" class="form-control" placeholder="e.g., Apple MacBook Air M3" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Marketplace Category *</label>
+            <select name="category" class="form-control" required>
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Books">Books</option>
+              <option value="Home Appliances">Home Appliances</option>
+              <option value="Gaming">Gaming</option>
+              <option value="Sports">Sports</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Manufacturing Brand *</label>
+            <input type="text" name="brand" class="form-control" placeholder="e.g., Apple" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Discounted Display Price (₹) *</label>
+            <input type="number" name="price" class="form-control" placeholder="134999" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Original Price / MRP (₹) *</label>
+            <input type="number" name="original_price" class="form-control" placeholder="139999" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Initial Stock Units *</label>
+            <input type="number" name="stock" class="form-control" placeholder="30" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Product Secure Image URL *</label>
+            <input type="url" name="image" class="form-control" placeholder="https://images.unsplash.com/photo-..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Technical Product Specifications / Description *</label>
+          <textarea name="description" class="form-control" rows="4" placeholder="Enter full specifications line metrics details..." required></textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:24px;">
+          <button type="submit" class="btn btn-accent">🚀 Publish Product Live</button>
+          <a href="{{ url_for('seller_dashboard') }}" class="btn btn-white">Discard Form</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

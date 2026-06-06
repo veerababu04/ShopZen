@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════════ HERO SLIDER ═══════════════════════════ -->
+<section class="hero-slider">
+  <!-- Slide 1 -->
+  <div class="hero-slide active" style="background:linear-gradient(135deg,#0B3D91 0%,#1a56c4 60%,#1e3a8a 100%)">
+    <div class="hero-slide-inner">
+      <div class="hero-text">
+        <div class="hero-tag">🎮 New Arrival</div>
+        <h1 class="hero-title">Bring Gaming<br>Worlds To Life</h1>
+        <div class="hero-subtitle">Experience next-gen gaming with haptic feedback</div>
+        <div class="hero-price">Starting at ₹54,999 <small>₹59,999</small></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="{{ url_for('products_page', category='Gaming') }}" class="btn btn-accent btn-lg">Shop Now →</a>
+          <a href="{{ url_for('products_page') }}" class="btn btn-white btn-lg">View All</a>
+        </div>
+      </div>
+      <div class="hero-img-wrap">
+        <img src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500&q=80" alt="PS5">
+      </div>
+    </div>
+  </div>
+  <!-- Slide 2 -->
+  <div class="hero-slide" style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%)">
+    <div class="hero-slide-inner">
+      <div class="hero-text">
+        <div class="hero-tag">📱 Best Seller</div>
+        <h1 class="hero-title">iPhone 15 Pro<br>Titanium Power</h1>
+        <div class="hero-subtitle">A17 Pro chip · 48MP Camera · USB-C</div>
+        <div class="hero-price">₹1,19,999 <small>₹1,29,999</small></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="{{ url_for('product_detail', pid='p001') }}" class="btn btn-accent btn-lg">Shop Now →</a>
+          <a href="{{ url_for('products_page', category='Electronics') }}" class="btn btn-white btn-lg">More Phones</a>
+        </div>
+      </div>
+      <div class="hero-img-wrap">
+        <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&q=80" alt="iPhone 15 Pro">
+      </div>
+    </div>
+  </div>
+  <!-- Slide 3 -->
+  <div class="hero-slide" style="background:linear-gradient(135deg,#065f46 0%,#059669 60%,#10b981 100%)">
+    <div class="hero-slide-inner">
+      <div class="hero-text">
+        <div class="hero-tag">📚 Top Rated</div>
+        <h1 class="hero-title">Books That<br>Change Lives</h1>
+        <div class="hero-subtitle">Bestsellers starting at just ₹249</div>
+        <div class="hero-price">From ₹249 <small>Up to 40% OFF</small></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="{{ url_for('products_page', category='Books') }}" class="btn btn-accent btn-lg">Shop Books →</a>
+        </div>
+      </div>
+      <div class="hero-img-wrap">
+        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80" alt="Books">
+      </div>
+    </div>
+  </div>
+  <!-- Controls -->
+  <button class="hero-arrow prev" id="hero-prev">&#8249;</button>
+  <button class="hero-arrow next" id="hero-next">&#8250;</button>
+  <div class="hero-nav">
+    <div class="hero-dot active" data-slide="0"></div>
+    <div class="hero-dot" data-slide="1"></div>
+    <div class="hero-dot" data-slide="2"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CATEGORY ICONS ═══════════════════════════ -->
+<div class="container" style="padding-top:24px">
+  <div style="background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:16px 8px;display:flex;align-items:center;justify-content:space-around;overflow-x:auto;gap:8px">
+    {% set cats = [
+      ('Electronics','💻','p003'),('Fashion','👗','p009'),('Books','📚','p017'),
+      ('Home Appliances','🏠','p033'),('Gaming','🎮','p025'),('Sports','⚽','p041')
+    ] %}
+    {% for cat, icon, pid in cats %}
+    <a href="{{ url_for('products_page', category=cat) }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 20px;border-radius:var(--radius);transition:all 0.2s;min-width:90px;text-align:center;color:var(--text);" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='transparent'">
+      <div style="width:54px;height:54px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid var(--border);transition:border-color 0.2s">{{ icon }}</div>
+      <span style="font-size:12px;font-weight:600;white-space:nowrap">{{ cat }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PROMO BANNERS ═══════════════════════════ -->
+<div class="container">
+  <div class="promo-grid">
+    <div class="promo-card orange">
+      <div class="promo-text">
+        <div class="promo-eyebrow">Get Rewarded</div>
+        <div class="promo-heading">Save Up 50% Off</div>
+        <div class="promo-sub">Best price on the market!</div>
+        <a href="{{ url_for('products_page') }}" class="btn btn-white btn-sm">Shop Now →</a>
+      </div>
+      <img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&q=80" alt="" class="promo-img">
+    </div>
+    <div class="promo-card blue">
+      <div class="promo-text">
+        <div class="promo-eyebrow">New Arrivals</div>
+        <div class="promo-heading">Latest Gadgets</div>
+        <div class="promo-sub">Free delivery on orders over ₹499</div>
+        <a href="{{ url_for('products_page', category='Electronics') }}" class="btn btn-white btn-sm">Shop Now →</a>
+      </div>
+      <img src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=200&q=80" alt="" class="promo-img">
+    </div>
+    <div class="promo-card dark">
+      <div class="promo-text">
+        <div class="promo-eyebrow">Top Seller</div>
+        <div class="promo-heading">Smart Watches</div>
+        <div class="promo-sub">Buy 2 get 1 free. Apply to buy online.</div>
+        <a href="{{ url_for('products_page', category='Electronics') }}" class="btn btn-white btn-sm">Shop Now →</a>
+      </div>
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&q=80" alt="" class="promo-img">
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TODAY'S DEALS (countdown) ═══════════════════════════ -->
+<div class="container">
+  <div class="deals-header">
+    <div class="section-title">
+      <div class="section-title-bar"></div>
+      🔥 Today's Featured Deals
+    </div>
+    <div class="countdown-wrap">
+      <span class="countdown-label">Ends in:</span>
+      <span class="countdown-box" id="cd-h">06</span>
+      <span class="countdown-sep">:</span>
+      <span class="countdown-box" id="cd-m">15</span>
+      <span class="countdown-sep">:</span>
+      <span class="countdown-box" id="cd-s">48</span>
+    </div>
+    <a href="{{ url_for('products_page') }}" class="view-all">View All →</a>
+  </div>
+
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:28px">
+    <div class="products-row">
+      {% for p in featured[:6] %}
+      {% set discount = ((p.original_price - p.price) / p.original_price * 100) | int %}
+      <div class="product-card product-card-flat">
+        <a href="{{ url_for('product_detail', pid=p.id) }}">
+          <div class="product-img-wrap">
+            <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x150?text=Product'">
+            {% if discount > 0 %}<span class="product-badge badge-red">-{{ discount }}%</span>{% endif %}
+          </div>
+          <div class="product-body">
+            <div class="product-cat">{{ p.category }}</div>
+            <div class="product-name">{{ p.name }}</div>
+            <div class="product-rating">
+              <span class="stars">{{ p.rating | stars }}</span>
+              <span class="rating-num">({{ p.reviews_count }})</span>
+            </div>
+            <div class="product-price-row">
+              <span class="price-new">{{ p.price | rupee }}</span>
+              <span class="price-old">{{ p.original_price | rupee }}</span>
+            </div>
+            <div class="stock-bar">
+              <div class="stock-label"><span>Available: {{ p.stock }}</span></div>
+              <div class="stock-track"><div class="stock-fill" style="width:{{ [100 - (p.stock / 150 * 100)|int, 10]|max }}%"></div></div>
+            </div>
+          </div>
+        </a>
+        <div class="product-footer">
+          {% if session.user_id %}
+          <form method="POST" action="{{ url_for('add_to_cart') }}">
+            <input type="hidden" name="product_id" value="{{ p.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn-cart">🛒 Add to Cart</button>
+          </form>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="btn-cart" style="display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;background:var(--primary);color:#fff;padding:8px;border-radius:var(--radius-sm);font-size:12px;font-weight:600">🛒 Add to Cart</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SUPER CHEAP PROMO ═══════════════════════════ -->
+<div class="container">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px;align-items:center">
+    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius);padding:24px;color:#fff">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);margin-bottom:6px">Get Rewarded</div>
+      <div style="font-size:20px;font-weight:800;font-family:'Barlow',sans-serif;margin-bottom:4px">Super Cheap Price</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px">Earn 20% Back in Rewards</div>
+      <a href="{{ url_for('products_page') }}" class="btn btn-accent btn-sm">Shop Now →</a>
+    </div>
+    {% for p in trending[:2] %}
+    <a href="{{ url_for('product_detail', pid=p.id) }}" style="display:flex;flex-direction:column;align-items:center;padding:16px;border:1px solid var(--border);border-radius:var(--radius);gap:10px;transition:box-shadow 0.2s;text-decoration:none;color:var(--text)" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+      <img src="{{ p.image }}" alt="{{ p.name }}" style="width:100%;height:90px;object-fit:contain" onerror="this.src='https://via.placeholder.com/120?text=P'">
+      <div style="font-size:12px;font-weight:600;text-align:center">{{ p.name }}</div>
+      <div style="font-size:11px;color:var(--text-muted)">Starting at</div>
+      <div style="font-size:16px;font-weight:700;color:var(--primary)">{{ p.price | rupee }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TRENDING THIS WEEK ═══════════════════════════ -->
+<div class="container">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-title-bar"></div>
+      Trending This Week
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="section-tabs">
+        <button class="section-tab active" onclick="filterSection(this,'trending','best_seller')">Best Seller</button>
+        <button class="section-tab" onclick="filterSection(this,'trending','trending')">Sales</button>
+        <button class="section-tab" onclick="filterSection(this,'trending','featured')">Featured</button>
+      </div>
+      <a href="{{ url_for('products_page') }}" class="view-all">View All →</a>
+    </div>
+  </div>
+  <div class="products-grid products-grid-6" id="section-trending" style="margin-bottom:28px">
+    {% for p in best_sellers[:8] %}
+    {% include '_product_card.html' %}
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SHOP BY CATEGORY SECTIONS ═══════════════════════════ -->
+{% set cat_data = [
+  ('Electronics','📱', 'electronics-items'),
+  ('Fashion','👗', 'fashion-items'),
+  ('Books','📚', 'books-items'),
+  ('Gaming','🎮', 'gaming-items'),
+  ('Home Appliances','🏠', 'home-items'),
+  ('Sports','⚽', 'sports-items')
+] %}
+{% for cat_name, cat_icon, cat_id in cat_data %}
+{% set cat_products = products | selectattr('category','eq',cat_name) | list %}
+{% if cat_products %}
+<div class="container" style="margin-bottom:8px">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-title-bar"></div>
+      {{ cat_icon }} {{ cat_name }}
+    </div>
+    <a href="{{ url_for('products_page', category=cat_name) }}" class="view-all">View All →</a>
+  </div>
+  <div style="display:grid;grid-template-columns:180px 1fr;gap:16px;margin-bottom:28px;align-items:start">
+    <!-- Category side banner -->
+    <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:var(--radius);padding:20px;color:#fff;min-height:200px;display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div style="font-size:32px;margin-bottom:10px">{{ cat_icon }}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">{{ cat_name }}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7)">{{ cat_products|length }} Products Available</div>
+      </div>
+      <a href="{{ url_for('products_page', category=cat_name) }}" class="btn btn-accent btn-sm" style="text-align:center;margin-top:14px">Shop All →</a>
+    </div>
+    <!-- Products -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:14px">
+      {% for p in cat_products[:8] %}
+      {% include '_product_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- ═══════════════════════════ AI RECOMMENDATIONS ═══════════════════════════ -->
+{% if recommendations %}
+<div class="container">
+  <div class="section-head">
+    <div class="section-title">
+      <div class="section-title-bar"></div>
+      🤖 Recommended For You
+    </div>
+    <span style="font-size:11px;background:#eff6ff;color:var(--primary);padding:4px 10px;border-radius:20px;font-weight:600">AI Powered</span>
+  </div>
+  <div class="products-grid" style="margin-bottom:28px">
+    {% for p in recommendations %}
+    {% include '_product_card.html' %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════ BOTTOM PROMO BANNER ═══════════════════════════ -->
+<div class="container">
+  <div style="background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 50%,var(--primary-light) 100%);border-radius:var(--radius);padding:40px 40px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;margin-bottom:28px;overflow:hidden;position:relative">
+    <div style="position:absolute;top:-60px;right:20%;width:280px;height:280px;background:rgba(255,255,255,0.04);border-radius:50%"></div>
+    <div style="position:relative;z-index:1">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:8px">New Collection</div>
+      <h2 style="font-size:38px;font-weight:800;color:#fff;font-family:'Barlow',sans-serif;line-height:1.2;margin-bottom:8px">Up to <span style="color:var(--accent)">30% Off</span><br>Instant Discount</h2>
+      <p style="color:rgba(255,255,255,0.7);font-size:13px;margin-bottom:20px">Applicable on debit card, credit card, net banking.</p>
+      <a href="{{ url_for('products_page') }}" class="btn btn-accent btn-lg">Shop Now →</a>
+    </div>
+    <div style="display:flex;justify-content:center;position:relative;z-index:1">
+      <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80" alt="Deals" style="max-height:220px;object-fit:contain;border-radius:var(--radius);box-shadow:0 20px 40px rgba(0,0,0,0.3)">
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Hero Slider ──
+var slides = document.querySelectorAll('.hero-slide');
+var dots   = document.querySelectorAll('.hero-dot');
+var cur = 0;
+
+function goSlide(n) {
+  slides[cur].classList.remove('active');
+  dots[cur].classList.remove('active');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  dots[cur].classList.add('active');
+}
+
+document.getElementById('hero-next').addEventListener('click', function() { goSlide(cur + 1); });
+document.getElementById('hero-prev').addEventListener('click', function() { goSlide(cur - 1); });
+dots.forEach(function(d) { d.addEventListener('click', function() { goSlide(parseInt(this.dataset.slide)); }); });
+setInterval(function() { goSlide(cur + 1); }, 5000);
+
+// ── Countdown Timer ──
+var endTime = new Date();
+endTime.setHours(endTime.getHours() + 6, endTime.getMinutes() + 15, endTime.getSeconds() + 48);
+
+function updateCountdown() {
+  var now = new Date();
+  var diff = Math.max(0, endTime - now);
+  var h = Math.floor(diff / 3600000);
+  var m = Math.floor((diff % 3600000) / 60000);
+  var s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ── Section filter tabs ──
+function filterSection(btn, sectionId, filter) {
+  btn.closest('.section-tabs').querySelectorAll('.section-tab').forEach(function(t) { t.classList.remove('active'); });
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <h1>🛍️ {% if selected_category %}{{ selected_category }}{% else %}All Products{% endif %}</h1>
+    <p>{{ products|length }} products found{% if query %} for "<strong>{{ query }}</strong>"{% endif %}</p>
+  </div>
+</div>
+
+<div class="container page-content" style="padding-top:0">
+  <div class="products-layout">
+
+    <aside class="filter-sidebar">
+      <h3>🔽 Filter & Sort</h3>
+      <form method="GET" action="{{ url_for('products_page') }}">
+        {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+
+        <div class="filter-section">
+          <h4>Category</h4>
+          <div class="filter-option">
+            <input type="radio" name="category" id="cat_all" value="" {% if not selected_category %}checked{% endif %}>
+            <label for="cat_all">All Categories</label>
+          </div>
+          {% for cat in categories | sort %}
+          <div class="filter-option">
+            <input type="radio" name="category" id="cat_{{ loop.index }}" value="{{ cat }}" {% if selected_category == cat %}checked{% endif %}>
+            <label for="cat_{{ loop.index }}">{{ cat }}</label>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="filter-section">
+          <h4>Price Range</h4>
+          <div class="form-group" style="margin-bottom:8px">
+            <input type="number" name="min_price" class="form-control" placeholder="Min ₹"
+                   value="{{ request.args.get('min_price','') }}" style="margin-bottom:8px">
+            <input type="number" name="max_price" class="form-control" placeholder="Max ₹"
+                   value="{{ request.args.get('max_price','') }}">
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+            {% for label, mn, mx in [('Under ₹1K','0','999'),('₹1K–5K','1000','4999'),('₹5K–20K','5000','19999'),('₹20K+','20000','')] %}
+            <a href="{{ url_for('products_page', category=selected_category, min_price=mn, max_price=mx, q=query) }}"
+               style="font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;text-decoration:none;transition:all 0.2s"
+               onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
+               onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+              {{ label }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h4>Sort By</h4>
+          <select name="sort" class="form-control">
+            <option value="">Default</option>
+            <option value="price_asc"  {% if sort=='price_asc'  %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Price: High to Low</option>
+            <option value="rating"     {% if sort=='rating'     %}selected{% endif %}>Highest Rated</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        <a href="{{ url_for('products_page') }}" class="btn btn-outline w-100" style="margin-top:8px">Clear All</a>
+      </form>
+    </aside>
+
+    <main>
+      {% if products %}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;background:#fff;padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--text-muted)">Showing <strong style="color:var(--text)">{{ products|length }}</strong> results</span>
+        <form method="GET" action="{{ url_for('products_page') }}" style="display:flex;align-items:center;gap:8px">
+          {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+          {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+          <label style="font-size:13px;color:var(--text-muted)">Sort:</label>
+          <select name="sort" class="form-control" style="width:auto;padding:6px 10px;font-size:13px" onchange="this.form.submit()">
+            <option value="">Default</option>
+            <option value="price_asc"  {% if sort=='price_asc'  %}selected{% endif %}>Price ↑</option>
+            <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>Price ↓</option>
+            <option value="rating"     {% if sort=='rating'     %}selected{% endif %}>Rating ↓</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="products-grid">
+        {% for p in products %}
+        <div class="product-card" style="background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; position:relative;">
+          
+          <div style="position:absolute; top:10px; left:10px; z-index:2; display:flex; flex-direction:column; gap:4px;">
+            {% if p.get('best_seller') %}<span class="badge badge-warning" style="font-size:10px; padding:2px 6px;">⭐ Best Seller</span>{% endif %}
+            {% if p.get('trending') %}<span class="badge badge-info" style="font-size:10px; padding:2px 6px;">🔥 Trending</span>{% endif %}
+            {% if p.original_price > p.price %}
+              {% set disc = ((p.original_price - p.price) / p.original_price * 100) | int %}
+              <span class="badge badge-danger" style="font-size:10px; padding:2px 6px;">-{{ disc }}%</span>
+            {% endif %}
+          </div>
+
+          <a href="{{ url_for('product_detail', pid=p.id) }}" style="display:block; height:200px; background:#f8f9fb; overflow:hidden;">
+            {% if p.image and (p.image.startswith('http://') or p.image.startswith('https://')) %}
+                <img src="{{ p.image }}" alt="{{ p.name }}" style="width:100%; height:100%; object-fit:cover;"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60';">
+            {% elif p.image and p.image != "" and p.image != "None" %}
+                <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}" style="width:100%; height:100%; object-fit:cover;"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60';">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60" alt="{{ p.name }}" style="width:100%; height:100%; object-fit:cover;">
+            {% endif %}
+          </a>
+
+          <div style="padding:15px; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <span style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">{{ p.category }}</span>
+              <h3 style="font-size:14px; margin:4px 0 8px 0; font-weight:600; line-height:1.4;">
+                <a href="{{ url_for('product_detail', pid=p.id) }}" style="color:var(--text); text-decoration:none;">{{ p.name }}</a>
+              </h3>
+              
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                <span class="stars" style="font-size:12px; color:#f59e0b;">{{ p.rating | stars }}</span>
+                <span style="font-size:11px; color:var(--text-muted)">({{ p.reviews_count }})</span>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <span style="font-size:16px; font-weight:700; color:var(--primary);">{{ p.price | rupee }}</span>
+                {% if p.original_price > p.price %}
+                <span style="font-size:12px; text-decoration:line-through; color:var(--text-muted);">{{ p.original_price | rupee }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+              <form method="POST" action="{{ url_for('add_to_cart') }}" style="margin:0;">
+                <input type="hidden" name="product_id" value="{{ p.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:8px 4px; font-size:12px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap;">
+                  🛒 Add
+                </button>
+              </form>
+
+              <a href="{{ url_for('checkout') }}" class="btn btn-accent" style="padding:8px 4px; font-size:12px; font-weight:bold; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap; background:#ff9800; color:white; border-radius:4px;">
+                ⚡ Buy Now
+              </a>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No products found</h3>
+        <p>Try different keywords or clear your filters.</p>
+        <a href="{{ url_for('products_page') }}" class="btn btn-primary">Browse All Products</a>
+      </div>
+      {% endif %}
+    </main>
+
+  </div>
+</div>
+{% endblock %}

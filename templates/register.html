@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | ShopZen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-container">
+  {% for cat, msg in messages %}
+  <div class="toast {{ cat }}">{{ msg }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="auth-page" style="padding:40px 0">
+  <div style="width:100%;padding:20px">
+    <div class="auth-card" style="max-width:480px">
+      <div class="auth-logo">
+        <h1>Shop<span>Zen</span></h1>
+        <p>Create Your Free Account</p>
+      </div>
+      <h2>Join ShopZen</h2>
+      <p>Start shopping or selling today</p>
+
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" placeholder="you@email.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <select name="role" class="form-control">
+            <option value="customer">🛒 Customer – I want to shop</option>
+            <option value="seller">🏪 Seller – I want to sell</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-accent w-100" style="padding:13px">Create Account</button>
+      </form>
+
+      <p class="auth-footer">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% block title %}ShopZen - {{ product.name }}{% endblock %}
+{% block content %}
+
+<div class="container page-content">
+
+  <div class="breadcrumb">
+    <a href="{{ url_for('home') }}">Home</a> /
+    <a href="{{ url_for('products_page', category=product.category) }}">{{ product.category }}</a> /
+    <span>{{ product.name }}</span>
+  </div>
+
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:28px">
+    <div class="detail-grid">
+      <div>
+        {% if product.image and (product.image.startswith('http://') or product.image.startswith('https://')) %}
+            <img src="{{ product.image }}" alt="{{ product.name }}" class="detail-main-img"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60';">
+        {% else %}
+            <img src="{{ url_for('static', filename=product.image) if product.image else 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60' }}" alt="{{ product.name }}" class="detail-main-img"
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=600&auto=format&fit=crop&q=60';">
+        {% endif %}
+        
+        <div style="display:flex;gap:8px;margin-top:12px">
+          {% for i in range(3) %}
+          <div style="width:72px;height:72px;border:2px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;background:#f8f9fb">
+            {% if product.image and (product.image.startswith('http://') or product.image.startswith('https://')) %}
+                <img src="{{ product.image }}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100&auto=format&fit=crop&q=60';">
+            {% else %}
+                <img src="{{ url_for('static', filename=product.image) if product.image else 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100&auto=format&fit=crop&q=60' }}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=100&auto=format&fit=crop&q=60';">
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          {% if product.get('best_seller') %}<span class="badge badge-warning">⭐ Best Seller</span>{% endif %}
+          {% if product.get('trending') %}<span class="badge badge-info">🔥 Trending</span>{% endif %}
+          <span class="badge badge-gray">{{ product.category }}</span>
+          {% if product.stock > 0 %}<span class="badge badge-success">✓ In Stock</span>
+          {% else %}<span class="badge badge-danger">✗ Out of Stock</span>{% endif %}
+        </div>
+
+        <h1 class="detail-title">{{ product.name }}</h1>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span class="stars" style="font-size:18px">{{ product.rating | stars }}</span>
+          <span style="font-weight:700;font-size:16px">{{ product.rating }}</span>
+          <span style="color:var(--text-muted);font-size:13px">({{ product.reviews_count }} reviews)</span>
+          <span style="color:var(--text-muted)">|</span>
+          <span style="font-size:13px;color:var(--green)">✓ Verified Seller</span>
+        </div>
+
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px">
+          <div class="detail-price">{{ product.price | rupee }}</div>
+          {% if product.original_price > product.price %}
+          {% set disc = ((product.original_price - product.price) / product.original_price * 100) | int %}
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <span class="detail-mrp" style="margin-bottom:0">MRP: {{ product.original_price | rupee }}</span>
+            <span style="background:#dcfce7;color:#166534;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px">{{ disc }}% OFF</span>
+          </div>
+          {% endif %}
+          <div style="font-size:12px;color:var(--green);margin-top:6px">🏦 Extra 5% OFF on Bank offers</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;font-size:13px">
+          <div style="background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm)">
+            <span style="color:var(--text-muted)">Brand</span><br>
+            <strong>{{ product.brand }}</strong>
+          </div>
+          <div style="background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm)">
+            <span style="color:var(--text-muted)">Seller</span><br>
+            <strong>{{ product.seller_name }}</strong>
+          </div>
+          <div style="background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm)">
+            <span style="color:var(--text-muted)">Category</span><br>
+            <strong>{{ product.category }}</strong>
+          </div>
+          <div style="background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm)">
+            <span style="color:var(--text-muted)">Stock</span><br>
+            <strong style="color:{% if product.stock > 0 %}var(--green){% else %}var(--red){% endif %}">
+              {{ product.stock }} units
+            </strong>
+          </div>
+        </div>
+
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:12px;margin-bottom:18px;font-size:12px;display:flex;gap:20px;flex-wrap:wrap">
+          <span>🚚 <strong>Free Delivery</strong> on ₹499+</span>
+          <span>↩️ <strong>7-day Returns</strong></span>
+          <span>🔒 <strong>Secure Payment</strong></span>
+          <span>✅ <strong>Genuine Product</strong></span>
+        </div>
+
+        {% if session.user_id %}
+        <div style="display: grid; grid-template-columns: auto 1fr 1fr; gap: 12px; align-items: center; margin-bottom: 14px;">
+          
+          <form method="POST" action="{{ url_for('add_to_cart') }}" style="display: contents;">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <div class="qty-control" style="margin: 0;">
+              <button type="button" class="qty-btn" data-action="dec">−</button>
+              <input type="number" name="quantity" class="qty-input" value="1" min="1" max="{{ product.stock }}">
+              <button type="button" class="qty-btn" data-action="inc">+</button>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; white-space: nowrap; padding: 12px 8px; font-size: 15px;">🛒 Add to Cart</button>
+          </form>
+          
+          <a href="{{ url_for('checkout') }}" class="btn btn-accent btn-lg" style="width: 100%; text-align: center; white-space: nowrap; padding: 12px 8px; font-size: 15px; display: flex; align-items: center; justify-content: center;">⚡ Buy Now</a>
+        </div>
+
+        <form method="POST" action="{{ url_for('toggle_wishlist') }}" style="margin-bottom: 14px;">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <button type="submit" class="btn {% if in_wishlist %}btn-danger{% else %}btn-outline{% endif %}" style="width: 100%;">
+            {% if in_wishlist %}❤️ Remove from Wishlist{% else %}🤍 Add to Wishlist{% endif %}
+          </button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg" style="width: 100%; text-align: center; margin-bottom: 14px;">🔑 Login to Buy</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px">
+    <div class="tabs-container">
+      <div class="tabs">
+        <button class="tab active" data-tab="tab-desc">📋 Description</button>
+        <button class="tab" data-tab="tab-reviews">⭐ Reviews ({{ product.reviews|length }})</button>
+        <button class="tab" data-tab="tab-shipping">🚚 Shipping</button>
+      </div>
+
+      <div id="tab-desc" class="tab-panel active">
+        <p style="font-size:14px;line-height:1.9;color:var(--text-mid)">{{ product.description }}</p>
+        <div style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px;border-radius:var(--radius-sm)">
+            <span style="font-size:22px">✅</span>
+            <div><div style="font-size:12px;font-weight:600">Genuine Product</div><div style="font-size:11px;color:var(--text-muted)">100% authentic</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px;border-radius:var(--radius-sm)">
+            <span style="font-size:22px">🔒</span>
+            <div><div style="font-size:12px;font-weight:600">Secure Payment</div><div style="font-size:11px;color:var(--text-muted)">256-bit SSL</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px;border-radius:var(--radius-sm)">
+            <span style="font-size:22px">🚚</span>
+            <div><div style="font-size:12px;font-weight:600">Fast Delivery</div><div style="font-size:11px;color:var(--text-muted)">2-4 business days</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--bg);padding:12px;border-radius:var(--radius-sm)">
+            <span style="font-size:22px">↩️</span>
+            <div><div style="font-size:12px;font-weight:600">Easy Returns</div><div style="font-size:11px;color:var(--text-muted)">7-day return policy</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-reviews" class="tab-panel">
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;margin-bottom:24px">
+          <div style="text-align:center;background:var(--bg);border-radius:var(--radius);padding:20px">
+            <div style="font-size:52px;font-weight:800;color:var(--primary)">{{ product.rating }}</div>
+            <div class="stars" style="font-size:22px">{{ product.rating | stars }}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:6px">{{ product.reviews_count }} reviews</div>
+          </div>
+          <div>
+            {% for star in [5,4,3,2,1] %}
+            {% set star_reviews = product.reviews | selectattr('rating','eq',star) | list | length %}
+            {% set pct = ((star_reviews / [product.reviews|length, 1]|max) * 100)|int %}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <span style="font-size:12px;font-weight:600;width:40px">{{ star }} ★</span>
+              <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+                <div style="height:100%;width:{{ pct }}%;background:var(--accent);border-radius:3px"></div>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted);width:30px">{{ star_reviews }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% for r in product.reviews %}
+        <div class="review-card">
+          <div class="review-header">
+            <span class="reviewer-name">👤 {{ r.user }}</span>
+            <span class="review-date">{{ r.date }}</span>
+          </div>
+          <div style="color:#f59e0b;margin-bottom:6px;font-size:14px">
+            {{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}
+          </div>
+          <p class="review-text">{{ r.comment }}</p>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted)">No reviews yet. Be the first!</p>
+        {% endfor %}
+
+        {% if session.user_id %}
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+          <h4 style="margin-bottom:14px;font-size:15px">Write a Review</h4>
+          <form method="POST" action="{{ url_for('add_review', pid=product.id) }}">
+            <div class="form-group">
+              <label class="form-label">Rating</label>
+              <div class="star-rating-input" style="display:flex;gap:4px;margin-bottom:8px">
+                {% for i in range(5) %}
+                <button type="button" class="star-btn" style="background:none;border:none;cursor:pointer;color:#d1d5db;font-size:28px;transition:color 0.15s">★</button>
+                {% endfor %}
+                <input type="hidden" name="rating" value="5">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your Review</label>
+              <textarea name="comment" class="form-control" rows="3" placeholder="Share your experience with this product..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+      <div id="tab-shipping" class="tab-panel">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
+          {% for icon, title, desc in [
+            ('🚚','Standard Delivery','Free on orders above ₹499. Delivered in 2-4 business days.'),
+            ('⚡','Express Delivery','Available for ₹99. Delivered within 24 hours in select cities.'),
+            ('↩️','Return Policy','7-day hassle-free returns. No questions asked.'),
+            ('🔒','Secure Packaging','All items are packed securely to prevent damage in transit.')
+          ] %}
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px">
+            <div style="font-size:26px;margin-bottom:8px">{{ icon }}</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">{{ title }}</div>
+            <div style="font-size:12px;color:var(--text-muted)">{{ desc }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if related %}
+  <div style="margin-bottom:28px">
+    <div class="section-head">
+      <div class="section-title"><div class="section-title-bar"></div>Related Products</div>
+      <a href="{{ url_for('products_page', category=product.category) }}" class="view-all">View All →</a>
+    </div>
+    <div class="products-grid">
+      {% for p in related %}{% include '_product_card.html' %}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if recommendations %}
+  <div>
+    <div class="section-head">
+      <div class="section-title"><div class="section-title-bar"></div>🤖 You May Also Like</div>
+      <span style="font-size:11px;background:#eff6ff;color:var(--primary);padding:3px 10px;border-radius:20px;font-weight:600">AI Powered</span>
+    </div>
+    <div class="products-grid">
+      {% for p in recommendations %}{% include '_product_card.html' %}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

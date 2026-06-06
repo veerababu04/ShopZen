@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>👤 My Profile</h1>
+    <p>Manage your account and preferences</p>
+  </div>
+</div>
+<div class="container page-content" style="padding-top:0">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div class="checkout-card">
+      <h2>Edit Profile</h2>
+      <form method="POST" action="{{ url_for('profile') }}">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" value="{{ user.email }}" disabled style="background:var(--bg);color:var(--text-muted)">
+          <small style="color:var(--text-muted);font-size:11px">Email cannot be changed</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" name="phone" class="form-control" value="{{ user.get('phone','') }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <textarea name="address" class="form-control" rows="2">{{ user.get('address','') }}</textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" name="city" class="form-control" value="{{ user.get('city','') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State</label>
+            <input type="text" name="state" class="form-control" value="{{ user.get('state','') }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pincode</label>
+          <input type="text" name="pincode" class="form-control" value="{{ user.get('pincode','') }}">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">💾 Save Changes</button>
+      </form>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center">
+        <div style="width:76px;height:76px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px">👤</div>
+        <h3 style="font-size:18px;margin-bottom:4px">{{ user.name }}</h3>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:10px">{{ user.email }}</p>
+        <span class="badge {% if user.role=='admin' %}badge-purple{% elif user.role=='seller' %}badge-warning{% else %}badge-success{% endif %}">
+          {{ user.role | title }}
+        </span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px">
+            <div style="font-size:22px;font-weight:800;color:var(--primary)">{{ orders|length }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">Total Orders</div>
+          </div>
+          <div style="background:var(--bg);border-radius:var(--radius-sm);padding:12px">
+            <div style="font-size:16px;font-weight:800;color:var(--accent)">
+              {% set total_spent = namespace(val=0) %}
+              {% for o in orders %}{% set total_spent.val = total_spent.val + o.total %}{% endfor %}
+              {{ total_spent.val | int | rupee }}
+            </div>
+            <div style="font-size:11px;color:var(--text-muted)">Total Spent</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">Quick Links</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="{{ url_for('orders') }}" class="btn btn-outline">📦 View All Orders</a>
+          <a href="{{ url_for('wishlist') }}" class="btn btn-outline">❤️ My Wishlist</a>
+          <a href="{{ url_for('cart') }}" class="btn btn-outline">🛒 My Cart</a>
+          <a href="{{ url_for('logout') }}" class="btn btn-danger" style="margin-top:4px">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>💳 Checkout</h1>
+    <p>Complete your purchase securely</p>
+  </div>
+</div>
+
+<div class="container page-content" style="padding-top:0">
+  <div class="checkout-layout">
+    <!-- Left Column: Delivery Address & Payment Form -->
+    <div class="checkout-card">
+      <h2>📍 Delivery Address</h2>
+      <form method="POST" action="{{ url_for('checkout') }}">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" name="full_name" class="form-control" required value="{{ user.get('name','') }}" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number *</label>
+            <input type="tel" name="phone" class="form-control" required value="{{ user.get('phone','') }}" placeholder="10-digit number">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Full Address *</label>
+          <textarea name="address" class="form-control" required rows="2" placeholder="House no., Street, Landmark...">{{ user.get('address','') }}</textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">City *</label>
+            <input type="text" name="city" class="form-control" required value="{{ user.get('city','') }}" placeholder="City">
+          </div>
+          <div class="form-group">
+            <label class="form-label">State *</label>
+            <select name="state" class="form-control" required>
+              <option value="">Select State</option>
+              {% for s in ['Andhra Pradesh','Assam','Bihar','Delhi','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal'] %}
+              <option value="{{ s }}" {% if user.get('state') == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Pincode *</label>
+          <input type="text" name="pincode" class="form-control" required value="{{ user.get('pincode','') }}" placeholder="6-digit pincode" pattern="[0-9]{6}" maxlength="6">
+        </div>
+        
+        <!-- Payment Section Container -->
+        <div style="background:var(--bg); border-radius:var(--radius-sm); padding:16px; margin-bottom:20px">
+          <h4 style="font-size:14px; margin-bottom:12px">💳 Payment Method</h4>
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; font-weight:600; padding:10px; background:#fff; border-radius:var(--radius-sm); border:1.5px solid var(--primary)">
+            <input type="radio" name="payment" value="cod" checked>
+            💵 Cash on Delivery (COD)
+          </label>
+          <p style="font-size:11px; color:var(--text-muted); margin-top:6px; padding-left:4px">Pay when your order arrives at your doorstep</p>
+        </div>
+        
+        <button type="submit" class="btn btn-accent btn-lg w-100">🎉 Place Order Securely</button>
+        <p style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px">🔒 256-bit SSL encrypted checkout</p>
+      </form>
+    </div>
+
+    <!-- Right Column: Order Summary Details -->
+    <div>
+      <div class="order-summary">
+        <div class="summary-title">Order Summary ({{ items|length }} items)</div>
+        
+        {% for item in items %}
+        <div style="display:flex; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
+          <img src="{{ item.image }}" alt="{{ item.name }}" style="width:50px; height:50px; object-fit:cover; border-radius:var(--radius-sm); background:#f8f9fb" onerror="this.src='https://via.placeholder.com/50'">
+          <div style="flex:1; font-size:13px">
+            <div style="font-weight:600; margin-bottom:2px">{{ item.name }}</div>
+            <div style="color:var(--text-muted); font-size:12px">Qty: {{ item.quantity }}</div>
+          </div>
+          <div style="font-weight:700; font-size:14px">{{ item.subtotal | rupee }}</div>
+        </div>
+        {% endfor %}
+        
+        <!-- Pricing Calculations (Free delivery above ₹499 check) -->
+        <div class="summary-row" style="margin-top:8px">
+          <span>Subtotal</span>
+          <span>{{ total | rupee }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery</span>
+          <span style="color:var(--green); font-weight:600">
+            {% if total >= 499 %}FREE{% else %}₹49{% endif %}
+          </span>
+        </div>
+        <hr style="border:0; border-top:1px dashed var(--border); margin:12px 0;">
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>
+            {% if total >= 499 %}{{ total | rupee }}{% else %}{{ (total+49) | rupee }}{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

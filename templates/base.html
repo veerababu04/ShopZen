@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ShopZen{% endblock %} | AI E-Commerce</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Barlow:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+  
+  <!-- ── Flicker-Free Inline Script Layer to Prevent Theme Jumping ── -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('shopzen-theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="toast-container">
+  {% for cat, msg in messages %}
+  <div class="toast {{ cat }}">
+    {% if cat=='success' %}✅{% elif cat=='danger' %}❌{% elif cat=='warning' %}⚠️{% else %}ℹ️{% endif %}
+    {{ msg }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{{ url_for('home') }}" class="nav-logo">
+      <span class="logo-icon">🛒</span>Shop<span>Zen</span>
+    </a>
+
+    <div class="nav-search">
+      <div class="nav-search-cat">
+        <span>All Categories</span> <span style="font-size:10px">▾</span>
+      </div>
+      <form action="{{ url_for('products_page') }}" method="GET" style="display:flex; flex:1;">
+        <input type="text" name="q" id="nav-search-input" placeholder="Search for products, brands..."
+               autocomplete="off" value="{{ request.args.get('q','') }}">
+        <button type="submit" class="nav-search-btn">🔍</button>
+      </form>
+      <div class="search-suggestions" id="search-suggestions"></div>
+    </div>
+
+    <div class="nav-actions"></div>
+
+      {% if session.user_id %}
+      <div class="nav-user-wrap">
+        <div class="nav-action-btn">
+          <span class="nav-action-icon">👤</span>
+          <span class="nav-action-label">{{ session.name.split()[0] }} ▾</span>
+        </div>
+        <div class="nav-dropdown">
+          <a href="{{ url_for('profile') }}">👤 My Profile</a>
+          <a href="{{ url_for('orders') }}">📦 My Orders</a>
+          {% if session.role == 'seller' %}
+          <a href="{{ url_for('seller_dashboard') }}">🏪 Seller Dashboard</a>
+          {% endif %}
+          {% if session.role == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}">⚙️ Admin Panel</a>
+          {% endif %}
+          <a href="{{ url_for('logout') }}" style="color:var(--red)!important">🚪 Logout</a>
+        </div>
+      </div>
+      <a href="{{ url_for('wishlist') }}" class="nav-action-btn">
+        <span class="nav-action-icon">🛍️</span> <span class="nav-action-label">Wishlist</span>
+      </a>
+      <a href="{{ url_for('cart') }}" class="nav-action-btn" style="position:relative">
+        <span class="nav-action-icon">🛒</span>
+        <span class="nav-action-label">Cart</span>
+        {% if cart_count > 0 %}
+        <span class="cart-badge">{{ cart_count }}</span>
+        {% endif %}
+      </a>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="nav-action-btn">
+        <span class="nav-action-icon">🔑</span>
+        <span class="nav-action-label">Login</span>
+      </a>
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="cat-bar">
+  <div class="cat-bar-inner">
+    <a href="{{ url_for('products_page') }}" class="cat-bar-item {% if not request.args.get('category') and request.endpoint=='products_page' %}active{% endif %}">
+      <span class="cat-bar-icon">🏪</span><span>All</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Electronics') }}" class="cat-bar-item {% if request.args.get('category')=='Electronics' %}active{% endif %}">
+      <span class="cat-bar-icon">📱</span><span>Electronics</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Fashion') }}" class="cat-bar-item {% if request.args.get('category')=='Fashion' %}active{% endif %}">
+      <span class="cat-bar-icon">👗</span><span>Fashion</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Books') }}" class="cat-bar-item {% if request.args.get('category')=='Books' %}active{% endif %}">
+      <span class="cat-bar-icon">📚</span><span>Books</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Home Appliances') }}" class="cat-bar-item {% if request.args.get('category')=='Home Appliances' %}active{% endif %}">
+      <span class="cat-bar-icon">🏠</span><span>Home</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Gaming') }}" class="cat-bar-item {% if request.args.get('category')=='Gaming' %}active{% endif %}">
+      <span class="cat-bar-icon">🎮</span><span>Gaming</span>
+    </a>
+    <a href="{{ url_for('products_page', category='Sports') }}" class="cat-bar-item {% if request.args.get('category')=='Sports' %}active{% endif %}">
+      <span class="cat-bar-icon">⚽</span><span>Sports</span>
+    </a>
+  </div>
+</div>
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h2>Shop<span>Zen</span></h2>
+      <p> Discover millions of products from verified sellers at the best prices.</p>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <span style="background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;font-size:12px">📱 App Store</span>
+        <span style="background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:6px;font-size:12px">🤖 Google Play</span>
+      </div>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="{{ url_for('products_page', category='Electronics') }}">Electronics</a></li>
+        <li><a href="{{ url_for('products_page', category='Fashion') }}">Fashion</a></li>
+        <li><a href="{{ url_for('products_page', category='Books') }}">Books</a></li>
+        <li><a href="{{ url_for('products_page', category='Gaming') }}">Gaming</a></li>
+        <li><a href="{{ url_for('products_page', category='Sports') }}">Sports</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Account</h4>
+      <ul>
+        {% if session.user_id %}
+        <li><a href="{{ url_for('profile') }}">My Profile</a></li>
+        <li><a href="{{ url_for('orders') }}">My Orders</a></li>
+        <li><a href="{{ url_for('wishlist') }}">Wishlist</a></li>
+        <li><a href="{{ url_for('cart') }}">Cart</a></li>
+        {% else %}
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div>
+      <h4>Sellers</h4>
+      <ul>
+        <li><a href="{{ url_for('register') }}">Become a Seller</a></li>
+        {% if session.role == 'seller' %}
+        <li><a href="{{ url_for('seller_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('seller_add_product') }}">Add Product</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div>
+      <h4>Help</h4>
+      <ul>
+        <li><a href="#">Customer Service</a></li>
+        <li><a href="#">Returns Policy</a></li>
+        <li><a href="#">Shipping Info</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ShopZen. All rights reserved.</span>
+    <span>🔒 Secure &nbsp;|&nbsp; 🚚 Fast Delivery &nbsp;|&nbsp; ↩️ Easy Returns &nbsp;|&nbsp; 💳 Safe Payments</span>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<!-- ── Persistent LocalStorage Layout State Engine Sync Script ── -->
+<script>
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  const themeLabel = document.getElementById('theme-label');
+
+  function updateToggleButton(theme) {
+    if (theme === 'dark') {
+      themeIcon.textContent = '☀️';
+      themeLabel.textContent = 'Day Mode';
+    } else {
+      themeIcon.textContent = '🌙';
+      themeLabel.textContent = 'Dark Mode';
+    }
+  }
+
+  // 1. Current State Initialize Parse Loop
+  const currentSavedTheme = localStorage.getItem('shopzen-theme') || 'light';
+  updateToggleButton(currentSavedTheme);
+
+  // 2. Dynamic Click Event State Switch Listener
+  themeToggle.addEventListener('click', () => {
+    const activeTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (activeTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('shopzen-theme', 'light');
+      updateToggleButton('light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('shopzen-theme', 'dark');
+      updateToggleButton('dark');
+    }
+  });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

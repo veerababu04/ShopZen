@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>⚙️ Admin Dashboard</h1>
+    <p>Full platform overview and management</p>
+  </div>
+</div>
+<div class="container page-content" style="padding-top:0">
+
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">👥</div>
+      <div class="stat-value">{{ users|length }}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card stat-orange">
+      <div class="stat-icon">🏪</div>
+      <div class="stat-value">{{ sellers|length }}</div>
+      <div class="stat-label">Active Sellers</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value">{{ products|length }}</div>
+      <div class="stat-label">Total Products</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-icon">🛒</div>
+      <div class="stat-value">{{ orders|length }}</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card stat-purple">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value">{{ total_revenue | rupee }}</div>
+      <div class="stat-label">Platform Revenue</div>
+    </div>
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">🛍️</div>
+      <div class="stat-value">{{ customers|length }}</div>
+      <div class="stat-label">Customers</div>
+    </div>
+  </div>
+
+  {% if orders %}
+  {% set monthly = {} %}
+  {% for order in orders %}
+    {% set month = order.created_at[:7] %}
+    {% if month not in monthly %}{% set _ = monthly.update({month: 0}) %}{% endif %}
+    {% set _ = monthly.update({month: monthly[month] + order.total}) %}
+  {% endfor %}
+  {% if monthly %}
+  <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:24px">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:18px">📊 Revenue Overview</h3>
+    <div style="display:flex;align-items:flex-end;gap:12px;height:140px">
+      {% set max_val = monthly.values()|list|max if monthly else 1 %}
+      {% for month, amount in monthly.items() %}
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:600">{{ amount | rupee }}</div>
+        <div style="width:100%;background:linear-gradient(to top,var(--primary),var(--accent));border-radius:4px 4px 0 0;height:{{ ((amount/max_val)*110)|int }}px;min-height:4px"></div>
+        <div style="font-size:10px;color:var(--text-muted)">{{ month }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab active" data-tab="tab-users">👥 Users ({{ users|length }})</button>
+      <button class="tab" data-tab="tab-products">📦 Products ({{ products|length }})</button>
+      <button class="tab" data-tab="tab-orders">🛒 Orders ({{ orders|length }})</button>
+    </div>
+
+    <div id="tab-users" class="tab-panel active">
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for u in users %}
+              <tr>
+                <td style="font-weight:600">{{ u.name }}</td>
+                <td style="font-size:13px">{{ u.email }}</td>
+                <td>
+                  <span class="badge {% if u.role=='admin' %}badge-purple{% elif u.role=='seller' %}badge-warning{% else %}badge-success{% endif %}">{{ u.role|title }}</span>
+                </td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ u.get('created_at','')[:10] }}</td>
+                <td>
+                  {% if u.id != session.user_id %}
+                  <form method="POST" action="{{ url_for('admin_delete_user', uid=u.id) }}">
+                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Delete user {{ u.name }}?">🗑️ Delete</button>
+                  </form>
+                  {% else %}
+                  <span style="font-size:12px;color:var(--text-muted)">You</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-products" class="tab-panel">
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Seller</th><th>Stock</th><th>Rating</th><th>Action</th></tr></thead>
+            <tbody>
+              {% for p in products %}
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <img src="{{ p.image }}" style="width:38px;height:38px;object-fit:cover;border-radius:var(--radius-sm);background:#f8f9fb" onerror="this.src='https://via.placeholder.com/38'">
+                    <span style="font-weight:600;font-size:12px">{{ p.name }}</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-gray">{{ p.category }}</span></td>
+                <td style="font-weight:700">{{ p.price | rupee }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ p.seller_name }}</td>
+                <td>{{ p.stock }}</td>
+                <td>⭐ {{ p.rating }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('admin_delete_product', pid=p.id) }}">
+                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Delete '{{ p.name }}'?">🗑️</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-orders" class="tab-panel">
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>City</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for order in orders | sort(attribute='created_at') | reverse %}
+              <tr>
+                <td style="font-weight:600;font-size:12px">{{ order.id }}</td>
+                <td>{{ order.user_name }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ order['items']|length }} item(s)</td>
+                <td style="font-weight:700">{{ order.total | rupee }}</td>
+                <td style="font-size:12px">{{ order.city }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">{{ order.created_at[:10] }}</td>
+                <td><span class="badge badge-success">{{ order.status }}</span></td>
+              </tr>
+              {% else %}
+              <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px">No orders yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

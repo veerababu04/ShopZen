@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Order Placed!{% endblock %}
+
+{% block content %}
+<div class="container page-content">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h1 style="font-size:26px; color:var(--green); margin-bottom:8px;">Order Confirmed!</h1>
+    <p style="color:var(--text-muted);">Your order has been placed successfully. Thank you for shopping with ShopZen!</p>
+    
+    <div class="order-info">
+      <div class="order-row"><span>Order ID</span><strong>{{ order.id }}</strong></div>
+      <div class="order-row"><span>Date</span><strong>{{ order.created_at }}</strong></div>
+      <div class="order-row"><span>Deliver to</span><strong>{{ order.city }}, {{ order.state }} - {{ order.pincode }}</strong></div>
+      <div class="order-row"><span>Total Amount</span><strong style="font-size:18px; color:var(--primary);">{{ order.total | rupee }}</strong></div>
+    </div>
+    
+    <div class="custom-message">
+      </div>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:20px;">
+      <a href="{{ url_for('orders') }}" class="btn btn-primary">📦 View My Orders</a>
+      <a href="{{ url_for('home') }}" class="btn btn-outline">🏠 Continue Shopping</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
