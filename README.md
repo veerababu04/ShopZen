@@ -1,3 +1,7 @@
+
+
+
+
 # ShopZen 🛍️
 
 A full-stack e-commerce web app built with Flask and MySQL. Supports three types of users — customers, sellers, and admins — each with their own dashboard and set of features.
@@ -93,7 +97,7 @@ DB_CONFIG = {
 ### 5. Run the app
 
 ```bash
-python app.py
+python3 app.py
 ```
 
 App runs on `http://localhost:5005` by default.
@@ -132,21 +136,3 @@ The app seeds these accounts automatically on first run:
 - View all users, products, and orders
 - Delete users or products
 
----
-
-## Environment Variables
-
-It's a good idea to set a proper secret key instead of using the default:
-
-```bash
-export SECRET_KEY="something-long-and-random"
-```
-
----
-
-## Notes
-
-- Sessions expire after 2 hours
-- Passwords are hashed using Werkzeug's `generate_password_hash`
-- Basic XSS protection is handled by the `sanitize()` helper
-- The app runs in `debug=True` mode by default — turn that off before going to production
