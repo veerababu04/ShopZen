@@ -9,6 +9,7 @@
 </div>
 <div class="container page-content" style="padding-top:0">
 
+
   <div class="stats-grid">
     <div class="stat-card stat-blue">
       <div class="stat-icon">👥</div>
@@ -45,7 +46,12 @@
   {% if orders %}
   {% set monthly = {} %}
   {% for order in orders %}
-    {% set month = order.created_at[:7] %}
+    {% if order.created_at is string %}
+      {% set month = order.created_at[:7] %}
+    {% else %}
+      {% set month = order.created_at.strftime('%Y-%m') %}
+    {% endif %}
+    
     {% if month not in monthly %}{% set _ = monthly.update({month: 0}) %}{% endif %}
     {% set _ = monthly.update({month: monthly[month] + order.total}) %}
   {% endfor %}
@@ -86,7 +92,14 @@
                 <td>
                   <span class="badge {% if u.role=='admin' %}badge-purple{% elif u.role=='seller' %}badge-warning{% else %}badge-success{% endif %}">{{ u.role|title }}</span>
                 </td>
-                <td style="font-size:12px;color:var(--text-muted)">{{ u.get('created_at','')[:10] }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">
+                  {% set joined_date = u.get('created_at','') %}
+                  {% if joined_date is string %}
+                    {{ joined_date[:10] }}
+                  {% else %}
+                    {{ joined_date.strftime('%Y-%m-%d') }}
+                  {% endif %}
+                </td>
                 <td>
                   {% if u.id != session.user_id %}
                   <form method="POST" action="{{ url_for('admin_delete_user', uid=u.id) }}">
@@ -146,10 +159,24 @@
               <tr>
                 <td style="font-weight:600;font-size:12px">{{ order.id }}</td>
                 <td>{{ order.user_name }}</td>
-                <td style="font-size:12px;color:var(--text-muted)">{{ order['items']|length }} item(s)</td>
+                <td style="font-size:12px;color:var(--text-muted)">
+                  {% if order.items is callable %}
+                    {{ order.items()|length }} item(s)
+                  {% elif order.items is defined and order.items is iterable %}
+                    {{ order.items|length }} item(s)
+                  {% else %}
+                    -- items
+                  {% endif %}
+                </td>
                 <td style="font-weight:700">{{ order.total | rupee }}</td>
                 <td style="font-size:12px">{{ order.city }}</td>
-                <td style="font-size:12px;color:var(--text-muted)">{{ order.created_at[:10] }}</td>
+                <td style="font-size:12px;color:var(--text-muted)">
+                  {% if order.created_at is string %}
+                    {{ order.created_at[:10] }}
+                  {% else %}
+                    {{ order.created_at.strftime('%Y-%m-%d') }}
+                  {% endif %}
+                </td>
                 <td><span class="badge badge-success">{{ order.status }}</span></td>
               </tr>
               {% else %}
