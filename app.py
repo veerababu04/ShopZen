@@ -1,5 +1,3 @@
-
-
 import os, uuid, random
 from datetime import datetime, timedelta
 from functools import wraps
@@ -14,33 +12,41 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
-
-
+# ─── DATABASE CONFIGURATION (Supports Local & Cloud) ──────────────────────────
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '12345678',  
+    'host': os.environ.get('DB_HOST', 'localhost'),
+    'port': int(os.environ.get('DB_PORT', 3306)),
+    'user': os.environ.get('DB_USER', 'root'),
+    'password': os.environ.get('DB_PASSWORD', '12345678'),  
+    'database': os.environ.get('DB_NAME', 'ai_ecommerce'), 
     'charset': 'utf8mb4',
     'autocommit': True
 }
 
 def get_db():
     try:
-       
-        conn = mysql.connector.connect(**DB_CONFIG)
         
-       
+        if os.environ.get('DB_HOST'):
+            conn = mysql.connector.connect(**DB_CONFIG)
+            return conn
+        
+        conn = mysql.connector.connect(
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            charset=DB_CONFIG['charset'],
+            autocommit=DB_CONFIG['autocommit']
+        )
+        
         cur = conn.cursor()
         cur.execute("CREATE DATABASE IF NOT EXISTS ai_ecommerce CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
         cur.close()
         
-      
         conn.database = 'ai_ecommerce'
         return conn
         
     except mysql.connector.Error as err:
-        
-        if err.errno == 1045 and DB_CONFIG['password'] == 'root':
+        if err.errno == 1045 and DB_CONFIG['password'] == 'root' and not os.environ.get('DB_HOST'):
             print("Password 'root' failed, trying empty password...")
             DB_CONFIG['password'] = ''
             return get_db()
@@ -318,7 +324,6 @@ def toggle_wishlist():
         flash('Added to wishlist!', 'success')
     return redirect(request.referrer or url_for('wishlist'))
 
-# ── Supports Direct Buy Now Link Redirect Handling ──
 @app.route('/checkout', methods=['GET','POST'])
 @login_required
 def checkout():
@@ -417,7 +422,6 @@ def profile():
             
     return render_template('profile.html', user=user, orders=user_orders)
 
-# ── 🏪 Seller Dashboard Route (Fixed Built-in Iteration Empty Dict Crash) ──
 @app.route('/seller')
 @role_required('seller')
 def seller_dashboard():
@@ -446,7 +450,6 @@ def seller_dashboard():
     return render_template('seller_dashboard.html', products=my_prods,
         orders=my_orders, total_earnings=total_earnings, monthly_earnings=monthly)
 
-# ── ➕ Seller Add Product Route (Supports Sync Brand & Original Price Form Maps) ──
 @app.route('/seller/product/add', methods=['GET','POST'])
 @role_required('seller')
 def seller_add_product():
@@ -471,7 +474,6 @@ def seller_add_product():
         return redirect(url_for('seller_dashboard'))
     return render_template('seller_add_product.html')
 
-# ── ✏️ Seller Edit Product Route (Fixed Sync Target Structural Pipeline) ──
 @app.route('/seller/product/edit/<pid>', methods=['GET','POST'])
 @role_required('seller')
 def seller_edit_product(pid):
@@ -586,8 +588,8 @@ def inject_globals():
 
 if __name__ == '__main__':
     try:
-        if os.path.exists('schema.sql'):
-            print("Loading schema.sql to initialize tables...")
+        if os.path.exists('schema.sql') and not os.environ.get('DB_HOST'):
+            print("Loading schema.sql to initialize tables locally...")
             db_conn = get_db()
             db_cur = db_conn.cursor()
             
